@@ -15,10 +15,11 @@ init();
 animate();
 
 function init() {
-  // Scene & camera
+  // Scene
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+  // Camera
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 1.5, 3);
 
   // Renderer
@@ -35,12 +36,12 @@ function init() {
   directionalLight.position.set(10, 10, 10);
   scene.add(directionalLight);
 
-  // Controls
+  // Orbit Controls
   controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, 1, 0);
   controls.update();
 
-  // Loader
+  // GLTF Loader
   const loader = new GLTFLoader();
 
   loader.load(
@@ -50,9 +51,14 @@ function init() {
       model = gltf.scene;
       scene.add(model);
 
-      // Centra e abbassa leggermente il modello
-      model.position.y = -1.2;
+      // CENTRAMENTO AUTOMATICO del modello
+      const box = new THREE.Box3().setFromObject(model);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      model.position.sub(center);
+      model.position.y += 0.5; // opzionale: solleva leggermente il modello
 
+      // Animazioni
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
 
@@ -60,12 +66,12 @@ function init() {
           const action = mixer.clipAction(clip);
           action.loop = THREE.LoopOnce;
           action.clampWhenFinished = true;
-          // Non serve assegnare a clip.userData.action
         });
 
         playBtn.style.display = 'block';
       }
 
+      // Nascondi caricamento
       loaderElem.style.display = 'none';
       loadingText.style.display = 'none';
     },
@@ -88,13 +94,13 @@ function init() {
   window.addEventListener('resize', onWindowResize);
 }
 
-function onWindowResize(){
-  camera.aspect = window.innerWidth/window.innerHeight;
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate(){
+function animate() {
   requestAnimationFrame(animate);
 
   const delta = clock.getDelta();
