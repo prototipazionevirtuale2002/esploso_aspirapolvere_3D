@@ -3,19 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <title>Aspirapolvere 3D</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js",
+      "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <!-- Main script -->
+  <script type="module" src="main.js"></script>
 </head>
 <body>
 
-<div id="canvas-container">
-  <button id="playAnimations">Avvia tutte le animazioni</button>
+  <div id="canvas-container"></div>
+
   <div id="loader">
     <div id="progressBar"></div>
   </div>
   <div id="loadingText">Caricamento modello... 0%</div>
-</div>
 
-<script type="module" src="./main.js"></script>
+  <button id="playAnimations">Avvia tutte le animazioni</button>
 
 </body>
 </html>
