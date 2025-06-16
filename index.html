@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Aspirapolvere 3D</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <button id="playAnimations">Avvia animazioni</button>
+
+<div id="canvas-container">
+  <button id="playAnimations">Avvia tutte le animazioni</button>
   <div id="loader">
     <div id="progressBar"></div>
   </div>
-  <script type="module" src="main.js"></script>
+  <div id="loadingText">Caricamento modello... 0%</div>
+</div>
+
+<script type="module" src="./main.js"></script>
+
 </body>
 </html>
