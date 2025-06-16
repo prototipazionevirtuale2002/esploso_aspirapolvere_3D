@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const container = document.getElementById('canvas-container');
 const playBtn = document.getElementById('playAnimations');
@@ -7,7 +8,7 @@ const loaderElem = document.getElementById('loader');
 const progressBar = document.getElementById('progressBar');
 const loadingText = document.getElementById('loadingText');
 
-let scene, camera, renderer, mixer, model;
+let scene, camera, renderer, mixer, model, controls;
 let clock = new THREE.Clock();
 
 init();
@@ -24,6 +25,9 @@ function init() {
   renderer.setClearColor(0x222222);
   container.appendChild(renderer.domElement);
 
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
   scene.add(ambientLight);
 
@@ -37,6 +41,12 @@ function init() {
     'animazione_web.glb',
     (gltf) => {
       model = gltf.scene;
+
+      // Centra il modello sulla scena
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center); // Sposta l'intero modello al centro
+
       scene.add(model);
 
       if (gltf.animations && gltf.animations.length > 0) {
@@ -81,6 +91,7 @@ function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
+  controls.update();
   renderer.render(scene, camera);
 }
 

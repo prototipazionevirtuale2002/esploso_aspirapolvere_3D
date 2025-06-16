@@ -2,27 +2,38 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Aspirapolvere 3D</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esploso Aspirapolvere 3D</title>
+
+  <!-- Import Map per Three.js e i moduli -->
   <script type="importmap">
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js",
-        "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/loaders/GLTFLoader.js"
+        "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/loaders/GLTFLoader.js",
+        "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/controls/OrbitControls.js"
       }
     }
   </script>
+
+  <!-- Collegamento allo stile -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="canvas-container"></div>
 
+  <!-- Bottone per avviare le animazioni -->
+  <button id="playAnimations">Avvia Animazioni</button>
+
+  <!-- Barra di caricamento -->
   <div id="loader">
     <div id="progressBar"></div>
   </div>
   <div id="loadingText">Caricamento modello... 0%</div>
 
-  <button id="playAnimations">Avvia tutte le animazioni</button>
+  <!-- Contenitore per la canvas WebGL -->
+  <div id="canvas-container"></div>
 
+  <!-- Script principale -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
