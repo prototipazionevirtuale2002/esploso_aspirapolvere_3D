@@ -51,12 +51,27 @@ function init() {
       model = gltf.scene;
       scene.add(model);
 
-      // CENTRAMENTO AUTOMATICO del modello
-      const box = new THREE.Box3().setFromObject(model);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      model.position.sub(center);
-      model.position.y += 0.5; // opzionale: solleva leggermente il modello
+      // Centra il modello e adatta la camera
+	  const box = new THREE.Box3().setFromObject(model);
+	  const size = new THREE.Vector3();
+	  const center = new THREE.Vector3();
+	  box.getSize(size);
+	  box.getCenter(center);
+
+	  // Centra il modello
+	  model.position.sub(center);
+
+	  // Calcola la distanza ideale della camera in base alla dimensione
+	  const maxDim = Math.max(size.x, size.y, size.z);
+	  const cameraDistance = maxDim * 1.5; // puoi aumentare per zoom-out
+
+	  // Posiziona la camera
+	  camera.position.set(center.x, center.y + maxDim * 0.5, cameraDistance);
+	  camera.lookAt(center);
+
+	  // Aggiorna i controlli orbit
+	  controls.target.copy(center);
+	  controls.update();
 
       // Animazioni
       if (gltf.animations && gltf.animations.length > 0) {
