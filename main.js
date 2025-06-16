@@ -1,59 +1,81 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-const scene = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1, 3);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.update();
-
-const loader = new GLTFLoader();
-const clock = new THREE.Clock();
-let mixer;
-let actions = [];
-
+const container = document.getElementById('canvas-container');
 const playBtn = document.getElementById('playAnimations');
-playBtn.style.display = 'none';
+const loaderElem = document.getElementById('loader');
+const progressBar = document.getElementById('progressBar');
+const loadingText = document.getElementById('loadingText');
 
-const loaderContainer = document.getElementById('loaderContainer');
-const loaderBar = document.getElementById('loaderBar');
+let scene, camera, renderer, mixer, model;
+let clock = new THREE.Clock();
 
-loader.load(
-  'esploso_web.glb',
-  function (gltf) {
-    scene.add(gltf.scene);
-    mixer = new THREE.AnimationMixer(gltf.scene);
-    gltf.animations.forEach((clip) => {
-      const action = mixer.clipAction(clip);
-      action.setLoop(THREE.LoopOnce);
-      action.clampWhenFinished = true;
-      action.stop();
-      actions.push(action);
-    });
-    loaderContainer.style.display = 'none';
-    playBtn.style.display = 'block';
-  },
-  function (xhr) {
-    const percent = (xhr.loaded / xhr.total) * 100;
-    loaderBar.style.width = percent + '%';
-  },
-  function (error) {
-    console.error('Errore nel caricamento del modello:', error);
-  }
-);
+init();
+animate();
 
-playBtn.addEventListener('click', () => {
-  actions.forEach(action => {
-    action.reset();
-    action.play();
+function init() {
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 2, 5);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x222222);
+  container.appendChild(renderer.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(10, 10, 10);
+  scene.add(directionalLight);
+
+  const loader = new GLTFLoader();
+
+  loader.load(
+    'animazione_web.glb',
+    (gltf) => {
+      model = gltf.scene;
+      scene.add(model);
+
+      if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(model);
+
+        gltf.animations.forEach((clip) => {
+          const action = mixer.clipAction(clip);
+          action.loop = THREE.LoopOnce;
+          action.clampWhenFinished = true;
+          action.enabled = true;
+          action.paused = true;
+          clip.userData = { action };
+        });
+
+        playBtn.style.display = 'block';
+      }
+
+      loaderElem.style.display = 'none';
+      loadingText.style.display = 'none';
+    },
+    (xhr) => {
+      if (xhr.lengthComputable) {
+        const percentComplete = (xhr.loaded / xhr.total) * 100;
+        progressBar.style.width = percentComplete + '%';
+        loadingText.textContent = `Caricamento modello... ${Math.floor(percentComplete)}%`;
+      }
+    },
+    (error) => {
+      console.error('Errore caricamento modello:', error);
+      loadingText.textContent = 'Errore caricamento modello.';
+    }
+  );
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
   });
-  playBtn.disabled = true;
-});
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -61,4 +83,16 @@ function animate() {
   if (mixer) mixer.update(delta);
   renderer.render(scene, camera);
 }
-animate();
+
+playBtn.addEventListener('click', () => {
+  if (!mixer) return;
+
+  mixer.stopAllAction();
+
+  mixer._actions.forEach(action => {
+    action.reset();
+    action.setLoop(THREE.LoopOnce);
+    action.clampWhenFinished = true;
+    action.play();
+  });
+});
