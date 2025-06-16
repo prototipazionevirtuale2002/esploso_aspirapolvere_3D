@@ -1,28 +1,110 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <title>Aspirapolvere 3D - Esploso</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js",
-      "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/"
-    }
-  }
-  </script>
+<meta charset="UTF-8" />
+<title>Test modello 3D</title>
+<style>
+  body { margin:0; overflow:hidden; background:#222; }
+  #canvas-container { width: 100vw; height: 100vh; }
+  #playAnimations { position:absolute; top:10px; left:10px; z-index:10; }
+</style>
 </head>
 <body>
-  <div id="canvas-container"></div>
+<button id="playAnimations" style="display:none;">Avvia animazioni</button>
+<div id="canvas-container"></div>
 
-  <button id="playAnimations" style="display:none;">Avvia tutte le animazioni</button>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/controls/OrbitControls.js';
 
-  <div id="loader">
-    <div id="progressBar"></div>
-  </div>
-  <div id="loadingText">Caricamento modello... 0%</div>
+const container = document.getElementById('canvas-container');
+const playBtn = document.getElementById('playAnimations');
 
-  <script type="module" src="main.js"></script>
+const scene = new THREE.Scene();
+
+// Aggiungi ambiente HDR semplice per riflessi PBR
+const pmremGenerator = new THREE.PMREMGenerator(new THREE.WebGLRenderer());
+pmremGenerator.compileEquirectangularShader();
+
+// Usa un'immagine HDR base (puoi cambiare con altre)
+new THREE.TextureLoader().load('https://threejs.org/examples/textures/equirectangular/royal_esplanade_1k.hdr', (hdrTexture) => {
+  hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = hdrTexture;
+});
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0, 2, 5);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x222222);
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0,1,0);
+controls.update();
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(10,10,10);
+scene.add(directionalLight);
+
+const loader = new GLTFLoader();
+
+let mixer, model;
+
+loader.load('animazione_web.glb',
+  (gltf) => {
+    model = gltf.scene;
+
+    // centratura modello (esempio)
+    model.position.y = -1;
+
+    scene.add(model);
+
+    if(gltf.animations && gltf.animations.length){
+      mixer = new THREE.AnimationMixer(model);
+      gltf.animations.forEach((clip) => {
+        const action = mixer.clipAction(clip);
+        action.loop = THREE.LoopOnce;
+        action.clampWhenFinished = true;
+        action.enabled = false;
+        action.paused = true;
+        clip.userData.action = action;
+      });
+      playBtn.style.display = 'block';
+    }
+  },
+  undefined,
+  (error) => { console.error(error); }
+);
+
+const clock = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(mixer) mixer.update(clock.getDelta());
+  renderer.render(scene, camera);
+}
+animate();
+
+playBtn.addEventListener('click', () => {
+  if(!mixer) return;
+  mixer.stopAllAction();
+  mixer._actions.forEach(action => {
+    action.reset();
+    action.play();
+  });
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
 </body>
 </html>
