@@ -15,20 +15,14 @@ init();
 animate();
 
 function init() {
-  // Scene
   scene = new THREE.Scene();
 
-  // Camera
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 1.5, 3);
-
-  // Renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x222222);
   container.appendChild(renderer.domElement);
 
-  // Lights
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
   scene.add(ambientLight);
 
@@ -36,12 +30,9 @@ function init() {
   directionalLight.position.set(10, 10, 10);
   scene.add(directionalLight);
 
-  // Orbit Controls
   controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 1, 0);
-  controls.update();
+  controls.enableDamping = true;
 
-  // GLTF Loader
   const loader = new GLTFLoader();
 
   loader.load(
@@ -51,29 +42,29 @@ function init() {
       model = gltf.scene;
       scene.add(model);
 
-      // Centra il modello e adatta la camera
-	  const box = new THREE.Box3().setFromObject(model);
-	  const size = new THREE.Vector3();
-	  const center = new THREE.Vector3();
-	  box.getSize(size);
-	  box.getCenter(center);
+      // Calcolo bounding box
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
 
-	  // Centra il modello
-	  model.position.sub(center);
+      // Centra il modello
+      model.position.sub(center); // sposta il modello in modo che il centro sia all'origine
 
-	  // Calcola la distanza ideale della camera in base alla dimensione
-	  const maxDim = Math.max(size.x, size.y, size.z);
-	  const cameraDistance = maxDim * 1.5; // puoi aumentare per zoom-out
+      // Distanza ideale della camera
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2)));
 
-	  // Posiziona la camera
-	  camera.position.set(center.x, center.y + maxDim * 0.5, cameraDistance);
-	  camera.lookAt(center);
+      cameraZ *= 1.5; // aumenta distanza per margine
+      camera.position.set(0, maxDim * 0.5, cameraZ);
+      camera.lookAt(0, 0, 0);
 
-	  // Aggiorna i controlli orbit
-	  controls.target.copy(center);
-	  controls.update();
+      // Aggiorna il target dei controlli
+      controls.target.set(0, 0, 0);
+      controls.update();
 
-      // Animazioni
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
 
@@ -86,7 +77,6 @@ function init() {
         playBtn.style.display = 'block';
       }
 
-      // Nascondi caricamento
       loaderElem.style.display = 'none';
       loadingText.style.display = 'none';
     },
@@ -117,18 +107,15 @@ function onWindowResize() {
 
 function animate() {
   requestAnimationFrame(animate);
-
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
-
+  controls.update();
   renderer.render(scene, camera);
 }
 
 playBtn.addEventListener('click', () => {
   if (!mixer || !model) return;
-
   mixer.stopAllAction();
-
   mixer._actions.forEach(action => {
     action.reset();
     action.play();
