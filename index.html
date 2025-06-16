@@ -2,24 +2,27 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Aspirapolvere 3D</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Aspirapolvere 3D - Esploso</title>
+  <link rel="stylesheet" href="style.css" />
   <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/"
-      }
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js",
+      "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/"
     }
+  }
   </script>
-  <script type="module" src="main.js"></script>
 </head>
 <body>
+  <div id="canvas-container"></div>
+
+  <button id="playAnimations" style="display:none;">Avvia tutte le animazioni</button>
+
   <div id="loader">
     <div id="progressBar"></div>
-    <div id="loadingText">Caricamento modello... 0%</div>
   </div>
-  <button id="playAnimations">Avvia animazioni</button>
-  <div id="canvas-container"></div>
+  <div id="loadingText">Caricamento modello... 0%</div>
+
+  <script type="module" src="main.js"></script>
 </body>
 </html>
