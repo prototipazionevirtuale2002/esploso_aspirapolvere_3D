@@ -9,6 +9,7 @@ const loadingText = document.getElementById('loadingText');
 
 let scene, camera, renderer, mixer, model;
 let clock = new THREE.Clock();
+let actions = [];
 
 init();
 animate();
@@ -16,7 +17,7 @@ animate();
 function init() {
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 2, 5);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -31,8 +32,6 @@ function init() {
   directionalLight.position.set(10, 10, 10);
   scene.add(directionalLight);
 
-  mixer = null;
-
   const loader = new GLTFLoader();
 
   loader.load(
@@ -44,14 +43,13 @@ function init() {
 
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
+        actions = [];
 
         gltf.animations.forEach((clip) => {
           const action = mixer.clipAction(clip);
           action.loop = THREE.LoopOnce;
           action.clampWhenFinished = true;
-          action.enabled = false;
-          action.paused = true;
-          clip.userData.action = action;
+          actions.push(action);
         });
 
         playBtn.style.display = 'block';
@@ -78,30 +76,24 @@ function init() {
   window.addEventListener('resize', onWindowResize);
 }
 
-function onWindowResize(){
-  camera.aspect = window.innerWidth/window.innerHeight;
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animate(){
+function animate() {
   requestAnimationFrame(animate);
-
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
-
   renderer.render(scene, camera);
 }
 
 playBtn.addEventListener('click', () => {
-  if (!mixer || !model) return;
+  if (!mixer || !actions.length) return;
 
-  mixer.stopAllAction();
-
-  mixer._actions.forEach(action => {
+  actions.forEach((action) => {
     action.reset();
-    action.setLoop(THREE.LoopOnce);
-    action.clampWhenFinished = true;
     action.play();
   });
 });
