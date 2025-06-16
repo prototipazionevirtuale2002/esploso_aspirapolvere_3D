@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Esploso Aspirapolvere 3D</title>
+  <title>Animazione Aspirapolvere 3D</title>
   <link rel="stylesheet" href="style.css" />
   <script type="importmap">
     {
@@ -14,14 +14,15 @@
   </script>
 </head>
 <body>
-  <div id="canvas-container"></div>
 
-  <button id="playAnimations">Avvia animazioni</button>
+  <div id="canvas-container"></div>
 
   <div id="loader">
     <div id="progressBar"></div>
+    <div id="loadingText">Caricamento modello... 0%</div>
   </div>
-  <div id="loadingText">Caricamento modello... 0%</div>
+
+  <button id="playAnimations">Avvia animazioni</button>
 
   <script type="module" src="main.js"></script>
 </body>

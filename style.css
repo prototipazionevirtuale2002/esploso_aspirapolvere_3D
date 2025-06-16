@@ -1,32 +1,16 @@
 body, html {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
   overflow: hidden;
-  background-color: #222;
   font-family: Arial, sans-serif;
+  background: #111;
   color: white;
+  height: 100vh;
 }
 
 #canvas-container {
   width: 100vw;
   height: 100vh;
-}
-
-#playAnimations {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  padding: 8px 16px;
-  font-size: 16px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: none;
 }
 
 #loader {
@@ -35,12 +19,11 @@ body, html {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 60%;
-  height: 20px;
+  height: 30px;
+  background: #333;
   border: 2px solid #555;
   border-radius: 10px;
-  overflow: hidden;
-  background: #333;
-  z-index: 20;
+  z-index: 10;
 }
 
 #progressBar {
@@ -52,11 +35,25 @@ body, html {
 
 #loadingText {
   position: absolute;
-  top: calc(50% + 30px);
+  top: calc(50% + 40px);
   left: 50%;
   transform: translateX(-50%);
   font-size: 14px;
   color: #ccc;
-  z-index: 20;
-  user-select: none;
+  z-index: 10;
+}
+
+#playAnimations {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+  z-index: 11;
 }
