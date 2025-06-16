@@ -1,63 +1,42 @@
-body, html {
+body {
   margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
   overflow: hidden;
-  background-color: #222;
   font-family: Arial, sans-serif;
-  color: white;
+  background-color: #f0f0f0;
 }
 
-#canvas-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-#loader {
+button#playAnimations {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  height: 20px;
-  border: 2px solid #555;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #333;
-  z-index: 20;
-}
-
-#progressBar {
-  height: 100%;
-  width: 0%;
-  background: #28a745;
-  transition: width 0.3s ease;
-}
-
-#loadingText {
-  position: absolute;
-  top: calc(50% + 30px);
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  color: #ccc;
-  z-index: 20;
-  user-select: none;
-}
-
-#playAnimations {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  padding: 8px 16px;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
   font-size: 16px;
-  background: #28a745;
+  z-index: 10;
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  display: none;
+}
+
+button#playAnimations:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+#loaderContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: #ddd;
+  z-index: 20;
+}
+
+#loaderBar {
+  height: 100%;
+  width: 0%;
+  background-color: #007bff;
+  transition: width 0.3s ease;
 }
