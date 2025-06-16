@@ -24,7 +24,6 @@ function init() {
   renderer.setClearColor(0x222222);
   container.appendChild(renderer.domElement);
 
-  // luce semplice
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
   scene.add(ambientLight);
 
@@ -34,7 +33,6 @@ function init() {
 
   mixer = null;
 
-  // Carica modello
   const loader = new GLTFLoader();
 
   loader.load(
@@ -98,7 +96,6 @@ function animate(){
 playBtn.addEventListener('click', () => {
   if (!mixer || !model) return;
 
-  // Ferma tutte le animazioni e poi le avvia da capo senza loop
   mixer.stopAllAction();
 
   mixer._actions.forEach(action => {
