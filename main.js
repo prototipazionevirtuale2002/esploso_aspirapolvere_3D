@@ -1,102 +1,54 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-const container = document.getElementById('canvas-container');
-const playBtn = document.getElementById('playAnimations');
-const loaderElem = document.getElementById('loader');
-const progressBar = document.getElementById('progressBar');
-const loadingText = document.getElementById('loadingText');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-let scene, camera, renderer, mixer;
-let clock = new THREE.Clock();
+const controls = new OrbitControls(camera, renderer.domElement);
+camera.position.set(0, 1, 3);
+controls.update();
 
-init();
-animate();
+const loader = new GLTFLoader();
+let mixer;
+let actions = [];
 
-function init() {
-  scene = new THREE.Scene();
+const playBtn = document.getElementById('playBtn');
+playBtn.style.display = 'none';
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 2, 5);
+loader.load('esploso_web.glb', function(gltf) {
+    scene.add(gltf.scene);
+    mixer = new THREE.AnimationMixer(gltf.scene);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x222222);
-  container.appendChild(renderer.domElement);
+    gltf.animations.forEach((clip) => {
+        const action = mixer.clipAction(clip);
+        action.setLoop(THREE.LoopOnce);
+        action.clampWhenFinished = true;
+        action.stop(); // Ensure it doesn't play automatically
+        actions.push(action);
+    });
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  directionalLight.position.set(10, 10, 10);
-  scene.add(directionalLight);
-
-  mixer = null;
-
-  const loader = new GLTFLoader();
-  loader.load(
-    'animazione_web.glb',
-    (gltf) => {
-      const model = gltf.scene;
-      scene.add(model);
-
-      if (gltf.animations && gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(model);
-
-        // Riproduce tutte le animazioni contemporaneamente
-        gltf.animations.forEach((clip) => {
-          const action = mixer.clipAction(clip);
-          action.setLoop(THREE.LoopOnce);
-          action.clampWhenFinished = true;
-          action.play(); // Puoi disabilitare il play iniziale se vuoi partire solo al click
-          action.paused = true; // Start paused
-          clip.userData.action = action;
+    playBtn.style.display = 'block';
+    playBtn.addEventListener('click', () => {
+        actions.forEach(action => {
+            action.reset();
+            action.play();
         });
+        playBtn.disabled = true;
+    });
+}, undefined, function(error) {
+    console.error(error);
+});
 
-        playBtn.style.display = 'block';
-      }
-
-      loaderElem.style.display = 'none';
-      loadingText.style.display = 'none';
-    },
-    (xhr) => {
-      if (xhr.lengthComputable) {
-        const percentComplete = (xhr.loaded / xhr.total) * 100;
-        progressBar.style.width = percentComplete + '%';
-        loadingText.textContent = `Caricamento modello... ${Math.floor(percentComplete)}%`;
-      }
-    },
-    (error) => {
-      console.error('Errore caricamento modello:', error);
-      loadingText.textContent = 'Errore caricamento modello.';
-    }
-  );
-
-  window.addEventListener('resize', onWindowResize);
-}
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+const clock = new THREE.Clock();
 
 function animate() {
-  requestAnimationFrame(animate);
-  const delta = clock.getDelta();
-  if (mixer) mixer.update(delta);
-  renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+    renderer.render(scene, camera);
 }
-
-playBtn.addEventListener('click', () => {
-  if (!mixer) return;
-
-  mixer.stopAllAction();
-
-  mixer._actions.forEach(action => {
-    action.reset();
-    action.play();
-  });
-
-  playBtn.disabled = true;
-});
+animate();
