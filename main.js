@@ -20,7 +20,7 @@ function init() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x222222);
+  //renderer.setClearColor(0x222222);
   container.appendChild(renderer.domElement);
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
