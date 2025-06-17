@@ -18,9 +18,14 @@ function init() {
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+  // ✅ renderer con trasparenza
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  //renderer.setClearColor(0x222222);
+
+  // ✅ nessun colore di sfondo fisso → sfondo CSS visibile
+  // renderer.setClearColor(0x222222); // <-- non necessario con alpha: true
+
   container.appendChild(renderer.domElement);
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -42,26 +47,21 @@ function init() {
       model = gltf.scene;
       scene.add(model);
 
-      // Calcolo bounding box
       const box = new THREE.Box3().setFromObject(model);
       const size = new THREE.Vector3();
       const center = new THREE.Vector3();
       box.getSize(size);
       box.getCenter(center);
 
-      // Centra il modello
-      model.position.sub(center); // sposta il modello in modo che il centro sia all'origine
+      model.position.sub(center);
 
-      // Distanza ideale della camera
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2)));
-
-      cameraZ *= 1.5; // aumenta distanza per margine
+      cameraZ *= 1.5;
       camera.position.set(0, maxDim * 0.5, cameraZ);
       camera.lookAt(0, 0, 0);
 
-      // Aggiorna il target dei controlli
       controls.target.set(0, 0, 0);
       controls.update();
 
