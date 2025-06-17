@@ -4,11 +4,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const container = document.getElementById('canvas-container');
 const playBtn = document.getElementById('playAnimations');
+const resetBtn = document.getElementById('resetAnimations');
 const loaderElem = document.getElementById('loader');
 const progressBar = document.getElementById('progressBar');
 const loadingText = document.getElementById('loadingText');
 
 let scene, camera, renderer, mixer, model, controls;
+let actions = [];
 let clock = new THREE.Clock();
 
 init();
@@ -19,13 +21,8 @@ function init() {
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  // ✅ renderer con trasparenza
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  // ✅ nessun colore di sfondo fisso → sfondo CSS visibile
-  // renderer.setClearColor(0x222222); // <-- non necessario con alpha: true
-
   container.appendChild(renderer.domElement);
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -52,7 +49,6 @@ function init() {
       const center = new THREE.Vector3();
       box.getSize(size);
       box.getCenter(center);
-
       model.position.sub(center);
 
       const maxDim = Math.max(size.x, size.y, size.z);
@@ -61,20 +57,20 @@ function init() {
       cameraZ *= 1.5;
       camera.position.set(0, maxDim * 0.5, cameraZ);
       camera.lookAt(0, 0, 0);
-
       controls.target.set(0, 0, 0);
       controls.update();
 
       if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-
-        gltf.animations.forEach((clip) => {
+        actions = gltf.animations.map((clip) => {
           const action = mixer.clipAction(clip);
           action.loop = THREE.LoopOnce;
           action.clampWhenFinished = true;
+          return action;
         });
 
         playBtn.style.display = 'block';
+        resetBtn.style.display = 'block';
       }
 
       loaderElem.style.display = 'none';
@@ -84,7 +80,6 @@ function init() {
     (xhr) => {
       if (xhr.lengthComputable) {
         let percentComplete = (xhr.loaded / xhr.total) * 100;
-        if (percentComplete > 100) percentComplete = 100;
         progressBar.style.width = percentComplete + '%';
         loadingText.textContent = `Caricamento modello... ${Math.floor(percentComplete)}%`;
       }
@@ -113,11 +108,29 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+// ▶ Avvia tutte le animazioni
 playBtn.addEventListener('click', () => {
-  if (!mixer || !model) return;
+  if (!mixer || actions.length === 0) return;
   mixer.stopAllAction();
-  mixer._actions.forEach(action => {
+  actions.forEach(action => {
     action.reset();
     action.play();
   });
+});
+
+// 🔁 Reset animazioni
+resetBtn.addEventListener('click', () => {
+  if (!mixer || actions.length === 0) return;
+  mixer.stopAllAction();
+  mixer.setTime(0);
+
+  actions.forEach(action => {
+    action.enabled = true;
+    action.paused = true;
+    action.reset();
+    action.play();  // porta a frame 0
+    action.stop();  // blocca
+  });
+
+  mixer.setTime(0);
 });
