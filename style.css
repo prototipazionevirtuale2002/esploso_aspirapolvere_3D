@@ -23,11 +23,11 @@ body, html {
 #resetAnimations {
   position: absolute;
   z-index: 10;
-  width: 250px;               /* Stessa larghezza */
-  padding: 20px 40px;         /* 2,5x rispetto all'originale */
-  font-size: 40px;            /* 2,5x rispetto all'originale */
-  background: #00c2d1;        /* Azzurro acqua */
-  color: #333333;             /* Colore testo */
+  width: 520px;              /* Adatto a "Avvia tutte le animazioni" */
+  padding: 20px 40px;        /* 2,5x rispetto all'originale */
+  font-size: 40px;           /* 2,5x rispetto all'originale */
+  background: #00c2d1;       /* Azzurro acqua */
+  color: #333333;            /* Testo grigio scuro */
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -40,7 +40,7 @@ body, html {
 }
 
 #resetAnimations {
-  top: 110px; /* Spazio sufficiente sotto il primo pulsante */
+  top: 110px;
   left: 10px;
 }
 
@@ -61,7 +61,7 @@ body, html {
 #progressBar {
   height: 100%;
   width: 0%;
-  background: #00c2d1; /* Coordinato con i pulsanti */
+  background: #00c2d1;
   transition: width 0.3s ease;
 }
 
