@@ -23,13 +23,15 @@ body, html {
 #resetAnimations {
   position: absolute;
   z-index: 10;
-  padding: 16px 32px;         /* Raddoppiato */
-  font-size: 32px;            /* Raddoppiato */
-  background: #28a745;        /* Verde originale */
-  color: white;
+  width: 250px;               /* Stessa larghezza */
+  padding: 20px 40px;         /* 2,5x rispetto all'originale */
+  font-size: 40px;            /* 2,5x rispetto all'originale */
+  background: #00c2d1;        /* Azzurro acqua */
+  color: #333333;             /* Colore testo */
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  text-align: center;
 }
 
 #playAnimations {
@@ -38,7 +40,7 @@ body, html {
 }
 
 #resetAnimations {
-  top: 90px; /* Spostato più in basso per non sovrapporsi */
+  top: 110px; /* Spazio sufficiente sotto il primo pulsante */
   left: 10px;
 }
 
@@ -59,7 +61,7 @@ body, html {
 #progressBar {
   height: 100%;
   width: 0%;
-  background: #28a745;
+  background: #00c2d1; /* Coordinato con i pulsanti */
   transition: width 0.3s ease;
 }
 
