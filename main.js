@@ -80,6 +80,8 @@ function init() {
     (xhr) => {
       if (xhr.lengthComputable) {
         let percentComplete = (xhr.loaded / xhr.total) * 100;
+        // Limit percentComplete between 0 and 100
+        percentComplete = Math.min(Math.max(percentComplete, 0), 100);
         progressBar.style.width = percentComplete + '%';
         loadingText.textContent = `Caricamento modello... ${Math.floor(percentComplete)}%`;
       }
